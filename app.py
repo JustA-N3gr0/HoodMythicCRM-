@@ -8,7 +8,7 @@ st.set_page_config(page_title="Hood Mythic CRM", page_icon="😈", layout="wide"
 # 1. LOAD + SAVE SYSTEM (NO MORE DATA LOSS)
 # ---------------------------------------------------------------------------
 
-DATA_FILE = "data.json"
+DATA_FILE = "global_leads.json"  # use global_leads.json instead of data.json
 
 def load_data():
     if not os.path.exists(DATA_FILE):
@@ -63,7 +63,6 @@ agent = st.session_state.agent
 # ---------------------------------------------------------------------------
 
 st.sidebar.header(f"😎 Agent: {agent}")
-
 st.sidebar.subheader("Add New Lead")
 
 name = st.sidebar.text_input("Lead Name")
@@ -91,7 +90,6 @@ filter_uncalled = st.checkbox("Show only uncalled leads")
 filter_my_leads = st.checkbox("Show only leads assigned to me")
 
 filtered = {}
-
 for phone, info in leads.items():
     if filter_dispo != "All" and info.get("status") != filter_dispo:
         continue
@@ -109,7 +107,6 @@ st.subheader("Lead List")
 
 for phone, info in filtered.items():
     with st.expander(f"{info['name']} | 📞 {phone} | {info.get('status', 'No Status')}"):
-        
         st.write(f"**Name:** {info['name']}")
         st.write(f"**Phone:** {phone}")
         st.write(f"**Last Status:** {info.get('status', 'None')}")
@@ -119,8 +116,7 @@ for phone, info in filtered.items():
         
         dispo = st.selectbox(
             f"Update status for {phone}",
-            ["No Answer", "Not Interested", "Cold Lead", "Interested", "Hot Lead", 
-             "Wrong Number", "Left Voicemail", "Call Back Later", "Closed Deal"],
+            list(DISPOSITIONS.keys()),
             index=0
         )
 
@@ -139,11 +135,9 @@ for phone, info in filtered.items():
 st.subheader("🏆 Agent Leaderboard")
 
 scores = {}
-
 for phone, info in leads.items():
     ag = info.get("called_by")
     status = info.get("status")
-    
     if ag and status in DISPOSITIONS:
         scores[ag] = scores.get(ag, 0) + DISPOSITIONS[status]
 
@@ -154,4 +148,3 @@ for agent_name, pts in sorted_scores:
 
 # ---------------------------------------------------------------------------
 # END
-# ---------------------------------------------------------------------------
