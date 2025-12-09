@@ -1,150 +1,146 @@
-# hood_mythic_crm_v3.py
 import streamlit as st
 import pandas as pd
-import numpy as np
-import plotly.express as px
+import json
 import random
+import time
+import os
 
-st.set_page_config(page_title="🏡 Hood Mythic CRM - Chaos Mythic Mode", layout="wide")
-st.title("🏡 Hood Mythic Realtor CRM - Full Chaos Mode 🔥😈")
+# -------------------
+# CONFIG
+# -------------------
+st.set_page_config(page_title="🏡 Hood Mythic Realtor CRM", layout="wide")
+LEADS_FILE = "global_leads.json"
+USERS_FILE = "users.json"
 
-# -------------------------------
-# File uploader
-# -------------------------------
-uploaded_files = st.file_uploader(
-    "Upload Leads (CSV, TXT, XLSX, ODS)",
-    type=["csv", "txt", "xlsx", "ods"],
-    accept_multiple_files=True
-)
+# -------------------
+# UTILS
+# -------------------
+def load_json(file_path, default={}):
+    if os.path.exists(file_path):
+        with open(file_path, "r") as f:
+            return json.load(f)
+    return default
 
-def load_file(f):
-    fname = f.name.lower()
-    try:
-        if fname.endswith(".csv") or fname.endswith(".txt"):
-            return pd.read_csv(f, sep=None, engine='python')
-        elif fname.endswith(".xlsx"):
-            return pd.read_excel(f, engine='openpyxl')
-        elif fname.endswith(".ods"):
-            return pd.read_excel(f, engine='odf')
-    except Exception as e:
-        st.warning(f"Skipping {f.name} due to read error: {e}")
-        return pd.DataFrame()
+def save_json(file_path, data):
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=4)
 
-def load_and_merge(files):
-    combined_df = pd.DataFrame()
-    for f in files:
-        df = load_file(f)
-        if not df.empty:
-            combined_df = pd.concat([combined_df, df], ignore_index=True)
-    return combined_df
+# RNG tips
+tips = [
+    "Start the call with a joke 😎",
+    "Listen more than you talk 👂",
+    "Use their name 3 times 🧠",
+    "Smile while you talk 😁",
+    "Random fortune: Big deal today! 🍀"
+]
 
-# -------------------------------
-# Load data
-# -------------------------------
-if uploaded_files:
-    df = load_and_merge(uploaded_files)
-    if df.empty:
-        st.warning("No valid data loaded! Upload again.")
+# -------------------
+# LOGIN SYSTEM
+# -------------------
+users = load_json(USERS_FILE)
+st.sidebar.title("Login")
+username = st.sidebar.text_input("Username")
+password = st.sidebar.text_input("Password", type="password")
+login_btn = st.sidebar.button("Login")
+
+if login_btn:
+    if username in users and users[username]["password"] == password:
+        st.session_state["user"] = username
+        st.success(f"Welcome, {username} 😈🔥")
     else:
-        # -------------------------------
-        # Normalize column names
-        # -------------------------------
-        df.rename(columns={c: c.lower() for c in df.columns}, inplace=True)
-        name_col = next((c for c in df.columns if "name" in c), None)
-        phone_col = next((c for c in df.columns if "phone" in c or "cell" in c), None)
-        if not name_col:
-            df["name"] = "Unknown"
-            name_col = "name"
-        if not phone_col:
-            df["phone"] = "NoPhone"
-            phone_col = "phone"
+        st.error("Wrong login, try again!")
 
-        # -------------------------------
-        # Session state
-        # -------------------------------
-        if "uncalled_df" not in st.session_state:
-            st.session_state.uncalled_df = df.copy().reset_index(drop=True)
-            st.session_state.called_df = pd.DataFrame(columns=df.columns)
+# Only show dashboard if logged in
+if "user" in st.session_state:
+    agent = st.session_state["user"]
 
-        # -------------------------------
-        # Random Lead Picker with Auto-Shuffle
-        # -------------------------------
-        st.subheader("🎲 Random Lead Picker (Mythic Chaos Mode)")
-        if st.button("Pick a Random Lead"):
-            if st.session_state.uncalled_df.empty:
-                st.success("✅ All leads have been called!")
-            else:
-                # Shuffle uncalled leads first
-                st.session_state.uncalled_df = st.session_state.uncalled_df.sample(frac=1).reset_index(drop=True)
-                # Pick top lead after shuffle
-                lead = st.session_state.uncalled_df.iloc[0]
-                st.session_state.called_df = pd.concat(
-                    [st.session_state.called_df, lead.to_frame().T], ignore_index=True
-                )
-                st.session_state.uncalled_df = st.session_state.uncalled_df.drop(0).reset_index(drop=True)
-                st.info(f"Call this lead: {lead[name_col]} 📞 {lead[phone_col]}")
+    # Load global leads
+    global_leads = load_json(LEADS_FILE, default={})
 
-        # -------------------------------
-        # Leads Table
-        # -------------------------------
-        st.subheader("📋 Leads Table")
-        st.dataframe(st.session_state.uncalled_df.style.applymap(
-            lambda x: 'background-color: #ffeb3b; font-weight: bold;' if isinstance(x, (int,float)) else ''
-        ))
+    # Load agent data
+    agent_file = f"{agent}_data.json"
+    agent_data = load_json(agent_file, default={"called_leads": {}, "points":0, "uncalled_leads":[]})
 
-        # -------------------------------
-        # Quick Copy Section
-        # -------------------------------
-        st.subheader("📱 Quick Copy Leads")
-        with st.expander("Top 50 Leads (Name: Phone)"):
-            quick_list = "\n".join(
-                [f"{row[name_col]}: {row[phone_col]}" for _, row in st.session_state.uncalled_df.head(50).iterrows()]
-            )
-            st.text_area("📋 Copy & Paste:", value=quick_list, height=200, key="quickcopy_area")
+    # -------------------
+    # UPLOAD NEW LEADS
+    # -------------------
+    uploaded_files = st.file_uploader("Upload Leads CSV/TXT/XLSX/ODS", type=["csv","txt","xlsx","ods"], accept_multiple_files=True)
+    for f in uploaded_files:
+        try:
+            if f.name.endswith(".csv") or f.name.endswith(".txt"):
+                df = pd.read_csv(f)
+            else:  # Excel / ODS
+                df = pd.read_excel(f, engine="openpyxl")
+        except Exception as e:
+            st.warning(f"Skipping {f.name} due to read error: {e}")
+            continue
 
-        # -------------------------------
-        # Numeric Insights
-        # -------------------------------
-        numeric_cols = st.session_state.uncalled_df.select_dtypes(include=['float','int']).columns
-        if len(numeric_cols) >= 2:
-            x_col, y_col = numeric_cols[:2]
-            st.subheader("📊 Numeric Insights")
-            fig = px.scatter(st.session_state.uncalled_df, x=x_col, y=y_col,
-                             hover_data=[name_col, phone_col])
-            st.plotly_chart(fig)
+        # Add new leads to global leads
+        for idx, row in df.iterrows():
+            phone = str(row["Phone"])
+            name = row.get("Name", "Unknown")
+            if phone not in global_leads:
+                global_leads[phone] = {"name": name, "called_by": None, "status": None}
+                agent_data["uncalled_leads"].append({"phone": phone, "name": name})
 
-        # -------------------------------
-        # Top Leads
-        # -------------------------------
-        price_cols = [c for c in st.session_state.uncalled_df.columns if "price" in c]
-        if price_cols:
-            top_col = price_cols[0]
-            top_leads = st.session_state.uncalled_df.sort_values(by=top_col, ascending=False).head(10)
-            st.subheader("🔥 Top 10 Hot Leads 🔥")
-            st.dataframe(top_leads.style.applymap(
-                lambda x: 'background-color: #ffeb3b; font-weight: bold;' if isinstance(x, (int,float)) else ''
-            ))
+    # Save updates
+    save_json(LEADS_FILE, global_leads)
+    save_json(agent_file, agent_data)
 
-        # -------------------------------
-        # Fun Tips / RNG Fortune
-        # -------------------------------
-        st.subheader("🎉 Mythic Call Tips & RNG Fortune")
-        tips = [
-            "Smash that intro like a boss 😎",
-            "Use their name at least 2x per call 💥",
-            "Random reward: +5 points if you make them laugh 😂",
-            "Shuffle your leads before calling for chaos 🌀",
-            "Emoji power = +1 charisma 😈🔥"
-        ]
-        st.info(random.choice(tips))
+    # -------------------
+    # DASHBOARD
+    # -------------------
+    st.title("🔥 Hood Mythic Realtor CRM")
+    
+    # Shuffle uncalled leads
+    random.shuffle(agent_data["uncalled_leads"])
+    for lead in agent_data["uncalled_leads"]:
+        phone = lead["phone"]
+        name = lead["name"]
+        st.write(f"📞 {name} - {phone}")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button(f"Pick Up ✅ ({phone})"):
+                # Update points & status
+                agent_data["called_leads"][phone] = {"name": name, "status":"Picked Up", "points":1}
+                agent_data["points"] += 1
+                global_leads[phone]["called_by"] = agent
+                global_leads[phone]["status"] = "Picked Up"
+                # Remove from uncalled
+                agent_data["uncalled_leads"] = [l for l in agent_data["uncalled_leads"] if l["phone"] != phone]
+        with col2:
+            if st.button(f"Convo Went Well 💥 ({phone})"):
+                agent_data["called_leads"][phone] = {"name": name, "status":"Convo Went Well", "points":5}
+                agent_data["points"] += 5
+                global_leads[phone]["called_by"] = agent
+                global_leads[phone]["status"] = "Convo Went Well"
+                agent_data["uncalled_leads"] = [l for l in agent_data["uncalled_leads"] if l["phone"] != phone]
+        with col3:
+            if st.button(f"No Answer ❌ ({phone})"):
+                agent_data["called_leads"][phone] = {"name": name, "status":"No Answer", "points":0}
+                global_leads[phone]["called_by"] = agent
+                global_leads[phone]["status"] = "No Answer"
+                agent_data["uncalled_leads"] = [l for l in agent_data["uncalled_leads"] if l["phone"] != phone]
 
-        # -------------------------------
-        # Leaderboard
-        # -------------------------------
-        st.subheader("🏆 Called Leads Leaderboard")
-        leaderboard = st.session_state.called_df[[name_col, phone_col]].copy()
-        leaderboard["Points"] = 1
-        leaderboard = leaderboard.groupby([name_col]).sum().sort_values("Points", ascending=False)
-        st.dataframe(leaderboard)
+    # Quick copy with names
+    st.subheader("📋 Quick Copy Leads")
+    copy_list = [f"{v['name']} - {k}" for k,v in global_leads.items() if v["called_by"] is None]
+    st.text_area("Click to Copy:", value="\n".join(copy_list), height=200)
 
-        st.success("Hood Mythic CRM Loaded! Call like a legend 😎💥")
+    # RNG Tip
+    st.subheader("💡 Call Tip")
+    st.write(random.choice(tips))
+
+    # Leaderboard
+    st.subheader("🏆 Multi-Agent Leaderboard")
+    leaderboard = []
+    for u in users.keys():
+        user_data = load_json(f"{u}_data.json", default={"points":0})
+        leaderboard.append((u, user_data.get("points",0)))
+    leaderboard.sort(key=lambda x:x[1], reverse=True)
+    for i, (u,p) in enumerate(leaderboard,1):
+        st.write(f"{i}. {u} - {p} pts")
+
+    # Save all changes at the end
+    save_json(LEADS_FILE, global_leads)
+    save_json(agent_file, agent_data)
