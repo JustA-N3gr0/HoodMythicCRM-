@@ -1,148 +1,157 @@
 import streamlit as st
-import pandas as pd
 import json
-import random
 import os
-import time
 
-# Set page
-st.set_page_config(page_title="Hood Mythic CRM", layout="wide")
-st.title("😈 Hood Mythic Realtor CRM - Chaos Mode 🔥")
+st.set_page_config(page_title="Hood Mythic CRM", page_icon="😈", layout="wide")
 
-# Ensure storage files exist
-if not os.path.exists("global_leads.json"):
-    with open("global_leads.json", "w") as f:
-        json.dump({}, f)
+# ---------------------------------------------------------------------------
+# 1. LOAD + SAVE SYSTEM (NO MORE DATA LOSS)
+# ---------------------------------------------------------------------------
 
-if not os.path.exists("users.json"):
-    with open("users.json", "w") as f:
-        json.dump({}, f)
+DATA_FILE = "data.json"
 
-# Load storage
-with open("global_leads.json", "r") as f:
-    global_leads = json.load(f)
+def load_data():
+    if not os.path.exists(DATA_FILE):
+        return {}
+    try:
+        with open(DATA_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return {}
 
-with open("users.json", "r") as f:
-    users = json.load(f)
+def save_data(data):
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=4)
 
-# --- Login System ---
-st.subheader("Agent Login")
-username = st.text_input("Username")
-password = st.text_input("Password", type="password")
-login_btn = st.button("Login")
+leads = load_data()
 
-if login_btn:
-    if username in users and users[username]["password"] == password:
-        st.success(f"Welcome back {username} 😎")
-        if not os.path.exists(f"{username}_data.json"):
-            # Create agent data file if not exist
-            agent_data = {"called_leads": {}, "uncalled_leads": [], "points": 0}
-            # populate uncalled_leads from global_leads
-            for phone, info in global_leads.items():
-                if "called_by" not in info or info["called_by"] is None:
-                    agent_data["uncalled_leads"].append({"phone": phone, "name": info["name"]})
-            with open(f"{username}_data.json", "w") as f:
-                json.dump(agent_data, f)
-        else:
-            with open(f"{username}_data.json", "r") as f:
-                agent_data = json.load(f)
-    else:
-        st.error("Invalid username or password 😤")
-        st.stop()
-else:
+# ---------------------------------------------------------------------------
+# 2. DISPOSITION SYSTEM (CALL LABELS)
+# ---------------------------------------------------------------------------
+
+DISPOSITIONS = {
+    "No Answer": 0,
+    "Not Interested": 0,
+    "Cold Lead": 1,
+    "Interested": 3,
+    "Hot Lead": 5,
+    "Wrong Number": -1,
+    "Left Voicemail": 0,
+    "Call Back Later": 0,
+    "Closed Deal": 10
+}
+
+# ---------------------------------------------------------------------------
+# 3. LOGIN SYSTEM (AGENT NAMES)
+# ---------------------------------------------------------------------------
+
+if "agent" not in st.session_state:
+    st.session_state.agent = None
+
+if st.session_state.agent is None:
+    st.title("😈 Hood Mythic CRM Login")
+    agent_name = st.text_input("Enter your agent name:")
+    if st.button("Login"):
+        if agent_name.strip() != "":
+            st.session_state.agent = agent_name.strip()
     st.stop()
 
-# --- Lead Upload ---
-uploaded_files = st.file_uploader(
-    "Upload CSV / TXT / XLSX / ODS leads", 
-    type=["csv", "txt", "xlsx", "ods"], 
-    accept_multiple_files=True
-)
+agent = st.session_state.agent
 
-def load_file(f):
-    try:
-        if f.name.endswith(".csv") or f.name.endswith(".txt"):
-            df = pd.read_csv(f, sep=None, engine="python")
-        elif f.name.endswith(".xlsx"):
-            import openpyxl
-            df = pd.read_excel(f, engine="openpyxl")
-        elif f.name.endswith(".ods"):
-            import odf
-            df = pd.read_excel(f, engine="odf")
-        else:
-            return None
-        return df
-    except Exception as e:
-        st.warning(f"Skipping {f.name} due to read error: {e}")
-        return None
+# ---------------------------------------------------------------------------
+# 4. ADD NEW LEADS (BUILT-IN + OPTIONAL UPLOAD)
+# ---------------------------------------------------------------------------
 
-if uploaded_files:
-    for f in uploaded_files:
-        df = load_file(f)
-        if df is not None and "Name" in df.columns and "Phone" in df.columns:
-            for _, row in df.iterrows():
-                phone = str(row["Phone"])
-                name = str(row["Name"])
-                if phone not in global_leads:
-                    global_leads[phone] = {"name": name, "called_by": None, "status": None}
-            with open("global_leads.json", "w") as fjson:
-                json.dump(global_leads, fjson)
-        else:
-            st.warning(f"No valid data in {f.name} or missing 'Name'/'Phone' columns")
+st.sidebar.header(f"😎 Agent: {agent}")
 
-# --- Load Agent Data ---
-with open(f"{username}_data.json", "r") as f:
-    agent_data = json.load(f)
+st.sidebar.subheader("Add New Lead")
 
-# --- Shuffle uncalled leads ---
-random.shuffle(agent_data["uncalled_leads"])
+name = st.sidebar.text_input("Lead Name")
+phone = st.sidebar.text_input("Phone Number")
 
-# --- Show next lead ---
-if agent_data["uncalled_leads"]:
-    lead = agent_data["uncalled_leads"].pop(0)
-    st.subheader("Next Lead")
-    st.write(f"**{lead['name']}**: {lead['phone']}")
-
-    status = st.radio("Call Outcome", ["Picked Up", "Convo Went Well", "No Answer"])
-    submit = st.button("Submit Outcome")
-
-    if submit:
-        agent_data["called_leads"][lead["phone"]] = {
-            "name": lead["name"],
-            "status": status,
-            "points": 1 if status=="Picked Up" else 5 if status=="Convo Went Well" else 0
+if st.sidebar.button("Add Lead"):
+    if phone.strip() != "":
+        leads[phone] = {
+            "name": name,
+            "called_by": None,
+            "status": None,
+            "notes": ""
         }
-        agent_data["points"] = sum([v["points"] for v in agent_data["called_leads"].values()])
-        global_leads[lead["phone"]]["called_by"] = username
-        global_leads[lead["phone"]]["status"] = status
+        save_data(leads)
+        st.sidebar.success("Lead added!")
 
-        # Save both
-        with open(f"{username}_data.json", "w") as f:
-            json.dump(agent_data, f)
-        with open("global_leads.json", "w") as f:
-            json.dump(global_leads, f)
+# ---------------------------------------------------------------------------
+# 5. FILTER SYSTEM
+# ---------------------------------------------------------------------------
 
-        st.success(f"Lead updated! Total Points: {agent_data['points']} 🎯")
-else:
-    st.info("No more leads left! 🏁")
+st.title("🏡 Hood Mythic CRM Dashboard")
 
-# --- Quick Copy Section ---
-st.subheader("📱 Quick Copy Leads")
-quick_copy = "\n".join([f"{v['name']}: {k}" for k,v in agent_data["called_leads"].items()])
-st.text_area("Copy these:", value=quick_copy, height=150)
+filter_dispo = st.selectbox("Filter by status:", ["All"] + list(DISPOSITIONS.keys()))
+filter_uncalled = st.checkbox("Show only uncalled leads")
+filter_my_leads = st.checkbox("Show only leads assigned to me")
 
-# --- Leaderboard ---
-st.subheader("🏆 Leaderboard")
-leaderboard = []
-for file in os.listdir():
-    if file.endswith("_data.json"):
-        with open(file, "r") as f:
-            data = json.load(f)
-        leaderboard.append({"agent": file.replace("_data.json",""), "points": data.get("points",0)})
-leaderboard.sort(key=lambda x: x["points"], reverse=True)
-st.table(leaderboard)
+filtered = {}
 
-# --- Fun RNG Tips ---
-tips = ["Keep it chill 😎", "Talk fast, sell faster 💨", "Use emojis in texts 📱", "Shuffle leads before calling 🔀"]
-st.subheader("🎲 RNG Call Tips")
-st.write(random.choice(tips))
+for phone, info in leads.items():
+    if filter_dispo != "All" and info.get("status") != filter_dispo:
+        continue
+    if filter_uncalled and info.get("status") is not None:
+        continue
+    if filter_my_leads and info.get("called_by") != agent:
+        continue
+    filtered[phone] = info
+
+# ---------------------------------------------------------------------------
+# 6. LEAD LIST DISPLAY (CLICK TO VIEW)
+# ---------------------------------------------------------------------------
+
+st.subheader("Lead List")
+
+for phone, info in filtered.items():
+    with st.expander(f"{info['name']} | 📞 {phone} | {info.get('status', 'No Status')}"):
+        
+        st.write(f"**Name:** {info['name']}")
+        st.write(f"**Phone:** {phone}")
+        st.write(f"**Last Status:** {info.get('status', 'None')}")
+        st.write(f"**Agent Assigned:** {info.get('called_by', 'None')}")
+        
+        notes = st.text_area(f"Notes for {phone}", value=info.get("notes", ""))
+        
+        dispo = st.selectbox(
+            f"Update status for {phone}",
+            ["No Answer", "Not Interested", "Cold Lead", "Interested", "Hot Lead", 
+             "Wrong Number", "Left Voicemail", "Call Back Later", "Closed Deal"],
+            index=0
+        )
+
+        if st.button(f"Save {phone}"):
+            leads[phone]["status"] = dispo
+            leads[phone]["called_by"] = agent
+            leads[phone]["notes"] = notes
+            save_data(leads)
+            st.success("Saved!")
+            st.experimental_rerun()
+
+# ---------------------------------------------------------------------------
+# 7. LEADERBOARD
+# ---------------------------------------------------------------------------
+
+st.subheader("🏆 Agent Leaderboard")
+
+scores = {}
+
+for phone, info in leads.items():
+    ag = info.get("called_by")
+    status = info.get("status")
+    
+    if ag and status in DISPOSITIONS:
+        scores[ag] = scores.get(ag, 0) + DISPOSITIONS[status]
+
+sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+
+for agent_name, pts in sorted_scores:
+    st.write(f"**{agent_name}:** {pts} pts")
+
+# ---------------------------------------------------------------------------
+# END
+# ---------------------------------------------------------------------------
