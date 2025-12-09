@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import json
 import random
-import time
 import os
 
 # -------------------
@@ -25,7 +24,6 @@ def save_json(file_path, data):
     with open(file_path, "w") as f:
         json.dump(data, f, indent=4)
 
-# RNG tips
 tips = [
     "Start the call with a joke 😎",
     "Listen more than you talk 👂",
@@ -50,38 +48,49 @@ if login_btn:
     else:
         st.error("Wrong login, try again!")
 
-# Only show dashboard if logged in
 if "user" in st.session_state:
     agent = st.session_state["user"]
 
-    # Load global leads
+    # Load leads and agent data
     global_leads = load_json(LEADS_FILE, default={})
-
-    # Load agent data
     agent_file = f"{agent}_data.json"
     agent_data = load_json(agent_file, default={"called_leads": {}, "points":0, "uncalled_leads":[]})
 
     # -------------------
     # UPLOAD NEW LEADS
     # -------------------
-    uploaded_files = st.file_uploader("Upload Leads CSV/TXT/XLSX/ODS", type=["csv","txt","xlsx","ods"], accept_multiple_files=True)
+    uploaded_files = st.file_uploader(
+        "Upload Leads CSV/TXT/XLSX/ODS", type=["csv","txt","xlsx","ods"], accept_multiple_files=True
+    )
     for f in uploaded_files:
         try:
             if f.name.endswith(".csv") or f.name.endswith(".txt"):
                 df = pd.read_csv(f)
-            else:  # Excel / ODS
+            else:
                 df = pd.read_excel(f, engine="openpyxl")
+
+            # Normalize columns
+            df.columns = [c.strip().lower() for c in df.columns]
+
+            # Check for phone
+            if 'phone' not in df.columns:
+                st.warning(f"{f.name} missing 'Phone' column! Skipping...")
+                continue
+            if 'name' not in df.columns:
+                st.warning(f"{f.name} missing 'Name' column! Filling with 'Unknown'")
+                df['name'] = 'Unknown'
+
+            # Add to leads
+            for idx, row in df.iterrows():
+                phone = str(row["phone"])
+                name = row.get("name", "Unknown")
+                if phone not in global_leads:
+                    global_leads[phone] = {"name": name, "called_by": None, "status": None}
+                    agent_data["uncalled_leads"].append({"phone": phone, "name": name})
+
         except Exception as e:
             st.warning(f"Skipping {f.name} due to read error: {e}")
             continue
-
-        # Add new leads to global leads
-        for idx, row in df.iterrows():
-            phone = str(row["Phone"])
-            name = row.get("Name", "Unknown")
-            if phone not in global_leads:
-                global_leads[phone] = {"name": name, "called_by": None, "status": None}
-                agent_data["uncalled_leads"].append({"phone": phone, "name": name})
 
     # Save updates
     save_json(LEADS_FILE, global_leads)
@@ -91,7 +100,7 @@ if "user" in st.session_state:
     # DASHBOARD
     # -------------------
     st.title("🔥 Hood Mythic Realtor CRM")
-    
+
     # Shuffle uncalled leads
     random.shuffle(agent_data["uncalled_leads"])
     for lead in agent_data["uncalled_leads"]:
@@ -101,12 +110,10 @@ if "user" in st.session_state:
         col1, col2, col3 = st.columns(3)
         with col1:
             if st.button(f"Pick Up ✅ ({phone})"):
-                # Update points & status
                 agent_data["called_leads"][phone] = {"name": name, "status":"Picked Up", "points":1}
                 agent_data["points"] += 1
                 global_leads[phone]["called_by"] = agent
                 global_leads[phone]["status"] = "Picked Up"
-                # Remove from uncalled
                 agent_data["uncalled_leads"] = [l for l in agent_data["uncalled_leads"] if l["phone"] != phone]
         with col2:
             if st.button(f"Convo Went Well 💥 ({phone})"):
