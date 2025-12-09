@@ -1,162 +1,103 @@
-{
-'8824': 'Moneer Hanna',
-'7323038747': 'Margaret Shields',
-'2014526489': 'Gerard Losurdo',
-'8436507736': 'David Ognek',
-'7322693409': 'Mark Saliski',
-'6093390834': 'John Zettel',
-'6106882331': 'David Huggler',
-'2016923948': 'Brittany Rose',
-'9192930236': 'J. Steiner',
-'2072408267': 'Michael Moscato',
-'4102576913': 'Dennis Leary',
-'7322555083': 'Lisa Ciesielski',
-'6462500455': 'Adam Fishman',
-'7329055584': 'James Debow',
-'9732672075': 'Jos Clark',
-'7328306540': 'Stanley Hetman',
-'7323639990': 'Rivka Akerman',
-'6096939560': 'Richard Nowak',
-'7322164968': 'Kenneth Reed',
-'2013600556': 'Teresa Wlazlinski',
-'6092900875': 'Jay Jardot',
-'6096186022': 'John Matuska',
-'8568661112': 'Steward Maines',
-'6096984597': 'Jeanne Schrader',
-'9085080165': 'John Reiner',
-'7329661076': 'Jennifer Hartman',
-'7188160190': 'Renato Gomez',
-'8455343197': 'John Pirchio',
-'7278621968': 'John Dimattia John & Marie a Trust',
-'9549250842': 'John Lozito',
-'6092843631': 'Theodore Baugh',
-'7322440716': 'Edward Angster',
-'6096932323': 'Benjamin Charles',
-'9732020307': 'Theodore Sanders',
-'6022790638': 'Phyllis Benguhe',
-'9082785442': 'Eugene Dipaolo',
-'2013273266': 'Anthony Pedulla',
-'3866150829': 'Susan Beaton',
-'6144364062': 'Robert Ball',
-'2018668820': 'Nervi Edw',
-'6095481625': 'Marion Larson',
-'7323885958': 'Gabriel Calafati',
-'7325868267': 'Robert Nuber',
-'7326168526': 'Ofer Malhi',
-'7077999742': 'George Gathman',
-'7322370787': 'James Hannon',
-'6099713015': 'William Stackles',
-'6098395779': 'John Sarno',
-'2013404651': 'Doreen Blase',
-'6093979667': 'Louis Mikolajczyk',
-'7328991560': 'William Lammers',
-'7323411925': 'Luciana Engle',
-'9738396804': 'Thomas Breen',
-'6094943759': 'Dennis Grimmett',
-'6096933646': 'David Wainwright',
-'7323642312': 'Chana Sasoon',
-'6096981748': 'David Moore',
-'7326165505': 'Frank Montalto',
-'7329054151': 'Vincent Doria',
-'7323303360': 'Joseph Poplawski',
-'7322444362': 'Ronald Risley',
-'7326006868': 'Jerry Milas',
-'6093842553': 'William Davies',
-'6096935493': 'Joseph Pustae',
-'8028851711': 'Barbara Ryan',
-'7328141729': 'John Klagholz',
-'2018961570': 'Anna Scardigno',
-'9084753493': 'Jennie Coviello',
-'9088149254': 'Thomas Barton',
-'7323416163': 'Peter Kercheval',
-'7322699271': 'James Parks',
-'6092765206': 'James Falkowski',
-'9734176335': 'Penny Scarella',
-'7326045850': 'Paul Heins',
-'9086750234': 'Peter Buckley',
-'6094947485': 'Gwenn Gibbons',
-'9732399179': 'Irving Dow',
-'9737731217': 'Stephen Siklosi',
-'2013414106': 'Oscar Cano',
-'9084157989': 'David Tompkins',
-'6095973047': 'Ruta Modestino',
-'9172955811': 'Timothy Schlauraff',
-'5616938665': 'Lesley Schneider',
-'6102590804': 'Fred Snacki',
-'6097095051': 'Steven Klimkiewicz',
-'7322320649': 'Raul Paye',
-'7322551152': 'Arlington Work',
-'7322360936': 'Holly Campbell',
-'7323634492': 'Ari Tessler',
-'7162640196': 'David Lipton',
-'7326046104': 'Maria Bonfantino',
-'9738357889': 'Anthony Lore',
-'7322702069': 'John Dec',
-'8567793354': 'Marie Vincent',
-'9737319871': 'Ernest Miles',
-'7322695210': 'Robert Breininger',
-'2015075722': 'Rosemarie Mustardo',
-'7327930191': 'Ross Vardiman',
-'9739033983': 'Ernest Wunder',
-'2128645211': 'Chang Lu',
-'6098180707': 'Leonard Katz',
-'6098591822': 'Jeff Daniel',
-'3306742538': 'Paul Bologna',
-'7327525349': 'Dimitiros Anastasatos',
-'7323413689': 'George Maravelias',
-'8139269084': 'Daniel Serpentelli',
-'7327424951': 'Andrew Savoca',
-'7322406542': 'Badr Shehata',
-'9737276766': 'Margie West',
-'7329282906': 'Frederick Formon',
-'2157412787': 'James Danner',
-'9732200800': 'Gerald Saluti',
-'7322911604': 'Mark Davies',
-'8452686793': 'Anton Seidl',
-'5414612196': 'Josephine Patucek',
-'6093842132': 'Mark Shapiro',
-'7329464932': 'Richard Lejda',
-'6096937647': 'Joanne Fink',
-'6096939679': 'Robert Frizell',
-'3219871179': 'Robert Jaegly',
-'6092428777': 'John Nacca',
-'9734184689': 'Joseph Vanderploeg',
-'7329052517': 'Richard Spataro',
-'7322695049': 'Rocco Chiavuzzo',
-'7148424541': 'James Palmer',
-'6096078335': 'Joseph Naia',
-'6095975860': 'Dominick Figueroa',
-'6095977994': 'Edward Tonnesen',
-'7322693333': 'Michael Mabie',
-'7322346672': 'Charles Diffendale',
-'7329856545': 'John Recine',
-'9732563562': 'George Fakhoury',
-'6099263542': 'Rick Russo',
-'9172256110': 'Benjamin Brockwell',
-'9082722175': 'Thomas Marczak',
-'7328211885': 'Lily Griggs',
-'4078702990': 'Dorothy Clemens',
-'7322443132': 'Dorothy Scarpa',
-'7322645989': 'Richard Koppers',
-'7323641118': 'Richard Roberts',
-'9087832501': 'Suzanne Russo',
-'9083625158': 'Chester Lakomy',
-'6093127773': 'Raymond Horner',
-'6092599432': 'Edward Reed',
-'7722153108': 'Richard Anderson Karl H Trust & Ryon R',
-'7326362835': 'Frank Kotlan',
-'7329051712': 'Eliezer Karfial',
-'6096931907': 'Dennis Shirm',
-'7329956789': 'Shraga Schorr',
-'7322415680': 'Judi Sienkiewicz',
-'2017917980': 'Thomas Kalinowski',
-'2015991018': 'J A Giannantonio',
-'6094260525': 'George Ireland',
-'6099711528': 'Wayne Tagliaboschi',
-'6092045554': 'Richard Buzby',
-'5612663627': 'Janusz Frank',
-'6095489528': 'Christopher Burris',
-'7324174444': 'Thomas Fallon',
-'8567191219': 'Joan Burke',
-'6096938001': 'John Tengowski'
+import json
+import os
+
+LEADS_FILE = "global_leads.json"
+
+# ---------------------------------------------------------------------------
+# LOAD + SAVE LEADS
+# ---------------------------------------------------------------------------
+
+def load_leads():
+    if not os.path.exists(LEADS_FILE):
+        return {}
+    try:
+        with open(LEADS_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_leads(leads):
+    with open(LEADS_FILE, "w") as f:
+        json.dump(leads, f, indent=4)
+
+# ---------------------------------------------------------------------------
+# ADD NEW LEAD
+# ---------------------------------------------------------------------------
+
+def add_lead(name, phone):
+    leads = load_leads()
+    if phone.strip() == "":
+        return False
+    leads[phone] = {
+        "name": name,
+        "called_by": None,
+        "status": None,
+        "notes": ""
+    }
+    save_leads(leads)
+    return True
+
+# ---------------------------------------------------------------------------
+# UPDATE LEAD STATUS
+# ---------------------------------------------------------------------------
+
+DISPOSITIONS = {
+    "No Answer": 0,
+    "Not Interested": 0,
+    "Cold Lead": 1,
+    "Interested": 3,
+    "Hot Lead": 5,
+    "Wrong Number": -1,
+    "Left Voicemail": 0,
+    "Call Back Later": 0,
+    "Closed Deal": 10
 }
+
+def update_lead(phone, agent, status, notes=""):
+    leads = load_leads()
+    if phone not in leads:
+        return False
+    leads[phone]["status"] = status
+    leads[phone]["called_by"] = agent
+    leads[phone]["notes"] = notes
+    save_leads(leads)
+    return True
+
+# ---------------------------------------------------------------------------
+# GET FILTERED LEADS
+# ---------------------------------------------------------------------------
+
+def get_filtered_leads(agent=None, filter_dispo=None, uncalled_only=False, my_leads_only=False):
+    leads = load_leads()
+    filtered = {}
+    for phone, info in leads.items():
+        if filter_dispo and filter_dispo != "All" and info.get("status") != filter_dispo:
+            continue
+        if uncalled_only and info.get("status") is not None:
+            continue
+        if my_leads_only and info.get("called_by") != agent:
+            continue
+        filtered[phone] = info
+    return filtered
+
+# ---------------------------------------------------------------------------
+# LEADERBOARD
+# ---------------------------------------------------------------------------
+
+def get_leaderboard():
+    leads = load_leads()
+    scores = {}
+    for phone, info in leads.items():
+        ag = info.get("called_by")
+        status = info.get("status")
+        if ag and status in DISPOSITIONS:
+            scores[ag] = scores.get(ag, 0) + DISPOSITIONS[status]
+    return dict(sorted(scores.items(), key=lambda x: x[1], reverse=True))
+
+# ---------------------------------------------------------------------------
+# UTILITY
+# ---------------------------------------------------------------------------
+
+def total_points():
+    leaderboard = get_leaderboard()
+    return sum(leaderboard.values())
