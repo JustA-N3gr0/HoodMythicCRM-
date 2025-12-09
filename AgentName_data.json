@@ -1,19 +1,14 @@
 {
-  "called_leads": {
-    "+15551234567": {
-      "name": "John Doe",
-      "status": "Picked Up",
-      "points": 1
-    },
-    "+15557654321": {
-      "name": "Jane Smith",
-      "status": "Convo Went Well",
-      "points": 5
-    }
+  "1": {
+    "name": "Dave",
+    "phone": "+186260004132"
   },
-  "points": 6,
-  "uncalled_leads": [
-    {"phone": "+15559876543", "name": "Bob Marley"},
-    {"phone": "+15553456789", "name": "Alice Johnson"}
-  ]
+  "2": {
+    "name": "Jeremy",
+    "phone": "+12015607822"
+  },
+  "3": {
+    "name": "Leighton",
+    "phone": "+14025900912"
+  }
 }
