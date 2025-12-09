@@ -1,12 +1,4 @@
 {
-  "+1234567890": {
-    "name": "John Doe",
-    "called_by": "ShadowDave",
-    "status": "Convo Went Well (5 pts)"
-  },
-  "+1987654321": {
-    "name": "Jane Smith",
-    "called_by": null,
-    "status": null
-  }
+  "+1234567890": {"name":"John Doe","called_by":"ShadowDave","status":"Picked Up"},
+  "+1987654321": {"name":"Jane Smith","called_by":null,"status":null}
 }
