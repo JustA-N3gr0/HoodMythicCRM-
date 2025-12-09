@@ -1,5 +1,7 @@
 {
-  "called_leads": {},
-  "points": 0,
-  "uncalled_leads": []
+  "called_leads": {
+    "+1234567890": {"name":"John Doe","status":"Picked Up","points":1}
+  },
+  "points": 1,
+  "uncalled_leads": [{"phone":"+1987654321","name":"Jane Smith"}]
 }
